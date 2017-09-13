@@ -1,0 +1,41 @@
+{
+  "Data": {
+    "Account": [
+      {
+        "AccountId": "22289",
+        "Currency": "GBP",
+        "Nickname": "Bills",
+        "Account": {
+          "SchemeName": "BBAN",
+          "Identification": "10203345",
+          "Name": "Mr Kevin",
+          "SecondaryIdentification": "00021"
+        },
+        "Servicer": {
+          "SchemeName": "UKSortCode",
+          "Identification": "SC802001"
+        }
+      },
+      {
+        "AccountId": "31820",
+        "Currency": "GBP",
+        "Nickname": "Household",
+        "Account": {
+          "SchemeName": "BBAN",
+          "Identification": "10203348",
+          "Name": "Mr Kevin"
+        },
+        "Servicer": {
+          "SchemeName": "UKSortCode",
+          "Identification": "SC802001"
+        }
+      }
+    ]
+  },
+  "Links": {
+    "self": "/accounts/"
+  },
+  "Meta": {
+    "total-pages": 1
+  }
+}

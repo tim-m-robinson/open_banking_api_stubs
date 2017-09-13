@@ -1,0 +1,18 @@
+{
+  "Data": {
+    "Product": [
+      {
+        "AccountId": "22289",
+        "ProductIdentifier": "CC",
+        "ProductType": "Current Account",
+        "ProductName": "321"
+      }
+    ]
+  },
+  "Links": {
+    "self": "/accounts/22289/product"
+  },
+  "Meta": {
+    "total-pages": 1
+  }
+}

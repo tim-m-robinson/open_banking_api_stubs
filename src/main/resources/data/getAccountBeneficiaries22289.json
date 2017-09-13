@@ -1,0 +1,26 @@
+{
+  "Data": {
+    "Beneficiary": [
+      {
+        "AccountId": "22289",
+        "BeneficiaryId": "Ben1",
+        "Reference": "Towbar Club",
+        "Servicer": {
+          "SchemeName": "UKSortCode",
+          "Identification": "SC802001"
+        },
+        "CreditorAccount": {
+          "SchemeName": "BBAN",
+          "Identification": "12345678",
+          "Name": "Mrs Juniper"
+        }
+      }
+    ]
+  },
+  "Links": {
+    "self": "/accounts/22289/beneficiaries/"
+  },
+  "Meta": {
+    "total-pages": 1
+  }
+}
