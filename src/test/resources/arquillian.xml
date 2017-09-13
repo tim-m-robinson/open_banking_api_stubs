@@ -9,16 +9,13 @@
     <container qualifier="wildfly-embedded" default="true">
         <configuration>
             <property name="jbossHome">${jboss.home}</property>
-            <property name="modulePath">${module.path:additional.module.path}</property>
         </configuration>
     </container>
 
     <!-- Configuration to be used when the WildFly managed profile is active -->
     <container qualifier="wildfly-managed">
         <configuration>
-            <property name="jbossHome">${jboss.home:/home/europa/wildfly/10.1.0.Final}</property>
-            <property name="modulePath">"/"</property>
-            <property name="serverConfig">standalone.xml</property>
+            <property name="jbossHome">${jboss.home}</property>
         </configuration>
     </container>
 

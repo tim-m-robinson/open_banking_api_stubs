@@ -11,6 +11,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
+
+
 @ApplicationPath("/")
 public class ServicesImpl extends Application implements Services {
 
@@ -201,11 +203,19 @@ public class ServicesImpl extends Application implements Services {
 
     // Private functions
 
+    private String getHeader(HttpHeaders headers, String headerName) {
+        if ((headers != null) && (headerName != null) && (headers.getRequestHeader(headerName) != null)) {
+            return headers.getRequestHeader(headerName).get(0);
+        } else {
+            return null;
+        }
+    }
+
     private Response validateHeaders(HttpHeaders headers) {
         // process headers
-        hdr_x_fapi_financial_id = headers.getHeaderString("x-fapi-financial-id");
-        hdr_x_fapi_interaction_id = headers.getHeaderString("x-fapi-interaction-id");
-        hdr_Authorization = headers.getHeaderString("Authorization");
+        hdr_x_fapi_financial_id = getHeader(headers,"x-fapi-financial-id");
+        hdr_x_fapi_interaction_id = getHeader(headers,"x-fapi-interaction-id");
+        hdr_Authorization = getHeader(headers,"Authorization");
         req_bearer_token = parse_auth_header();
 
         // Catch missing mandatory header
