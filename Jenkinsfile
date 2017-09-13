@@ -1,7 +1,7 @@
 node {
     stage('Prep') {
         deleteDir()
-        git credentialsId: 'matt-github', url: 'https://github.com/atosorigin/OPEN_BANKING_API_STUBS.git'
+        git url: 'https://github.com/tim-m-robinson/open_banking_api_stubs.git'
 
         // read project details from pom.xml
         def pom = readMavenPom file: 'pom.xml'
@@ -12,7 +12,7 @@ node {
         def now = new Date()
         env.BUILD_TIMESTAMP = now.format("yyyyMMdd-HHmmss", TimeZone.getTimeZone('UTC'))
         echo "${BUILD_TIMESTAMP}"
-    
+
         // capture GID of Docker group
         env.DOCKER_GID = sh (
             script: 'ls -la /var/run/docker.sock|cut -d" " -f4',
@@ -22,18 +22,18 @@ node {
     }
     // Maven build steps
     withDockerContainer(image: 'maven:3-jdk-8',
-          args: '''--network="citools" 
+          args: '''--network="citools"
                    -v /var/run/docker.sock:/var/run/docker.sock
                    --group-add ${DOCKER_GID}''') {
 
         stage('Build') {
           sh 'mvn -B compile'
         }
-        
+
         stage('Test') {
-          sh 'mvn -B -DskipTests=false -DJBOSS_HOME=./jboss-fuse-eap/eap test'
+          sh 'mvn -q -DJBOSS_HOME=/var/jenkins_home/jboss-fuse-eap/eap test -Parq-managed'
         }
-        
+
         stage('Dependency Check') {
           sh 'mvn -B org.owasp:dependency-check-maven:2.1.0:check'
         }
@@ -44,7 +44,7 @@ node {
             sh '''mvn -B sonar:sonar \
                 -Dsonar.host.url=http://sonar:9000 \
                 -Dsonar.login=${SONAR_USER} \
-                -Dsonar.password=${SONAR_PASS}'''                                        
+                -Dsonar.password=${SONAR_PASS}'''
           }
         }
 
@@ -56,7 +56,7 @@ node {
           sh 'mvn -B docker:build'
         }
     }
-    
+
     stage('Publish WAR') {
         withCredentials([usernameColonPassword(credentialsId: 'nexus', variable: 'USERPASS')]) {
             sh '''curl -v -u ${USERPASS} --upload-file target/${ARTIFACT_ID}.war \
@@ -65,7 +65,7 @@ node {
     }
 
     stage('Publish Image') {
-        def img = docker.image('${ARTIFACT_ID}:1.0-SNAPSHOT');
+        def img = docker.image('${ARTIFACT_ID}:1.0.0');
         docker.withRegistry('http://nexus:2375', 'nexus') {
           img.push();
         }
