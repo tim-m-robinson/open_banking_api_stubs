@@ -165,7 +165,7 @@
                   <descriptorRef>artifact</descriptorRef>
                   <targetDir>/opt/eap/standalone/deployments</targetDir>
                 </assembly>
-                <from>fuse_eap:6.4.0</from>
+                <from>fuse_eap:6.3.0</from>
               </build>
             </image>
           </images>
