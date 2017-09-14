@@ -20,7 +20,8 @@
     <version.apache.commons>2.5</version.apache.commons>
     <version.restassured>3.0.3</version.restassured>
     <version.docker.maven.plugin>0.21.0</version.docker.maven.plugin>
-    <version.jacoco>0.7.9</version.jacoco>
+    <version.jacoco>0.7.8</version.jacoco>
+    <version.arquillian.jacoco>1.0.0.Alpha9</version.arquillian.jacoco>
   </properties>
 
   <dependencyManagement>
@@ -102,6 +103,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.jboss.arquillian.extension</groupId>
+      <artifactId>arquillian-jacoco</artifactId>
+      <version>${version.arquillian.jacoco}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>io.rest-assured</groupId>
       <artifactId>rest-assured</artifactId>
       <version>${version.restassured}</version>
@@ -117,22 +124,20 @@
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
       <version>2.7.22</version>
+      <scope>test</scope>
     </dependency>
-
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-jaxrs</artifactId>
+      <version>2.3.10.Final-redhat-1</version>
+      <scope>compile</scope>
+    </dependency>
   </dependencies>
 
   <build>
     <defaultGoal>compile</defaultGoal>
     <finalName>${project.artifactId}</finalName>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.jacoco</groupId>
-          <artifactId>jacoco-maven-plugin</artifactId>
-          <version>${version.jacoco}</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
+    <!-- plugins -->
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -154,9 +159,14 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.5</version>
+        <version>2.20</version>
         <configuration>
+          <argLine>${jacoco.agent.argLine}</argLine>
           <skipTests>false</skipTests>
+          <includes>
+            <include>**/IT**.class</include>
+            <include>**/*Test.class</include>
+          </includes>
           <systemPropertyVariables>
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
             <jboss.home>${JBOSS_HOME}</jboss.home>
@@ -200,8 +210,10 @@
         <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
+          <version>${version.jacoco}</version>
           <configuration>
             <append>true</append>
+            <propertyName>jacoco.agent.argLine</propertyName>
           </configuration>
           <executions>
             <execution>
@@ -211,21 +223,13 @@
               </goals>
             </execution>
             <execution>
-              <id>agent-for-it</id>
-              <goals>
-                <goal>prepare-agent-integration</goal>
-              </goals>
-              <configuration>
-                <destFile>${project.build.directory}/jacoco-it.exec</destFile>
-              </configuration>
-            </execution>
-            <execution>
               <id>jacoco-site</id>
-              <phase>verify</phase>
+              <phase>test</phase>
               <goals>
                 <goal>report</goal>
               </goals>
             </execution>
+
           </executions>
         </plugin>
 
@@ -249,17 +253,6 @@
           </plugin>
         </plugins>
       </build>
-    </profile>
-    <profile>
-      <id>arq-embedded</id>
-      <dependencies>
-        <dependency>
-          <groupId>org.wildfly.arquillian</groupId>
-          <artifactId>wildfly-arquillian-container-embedded</artifactId>
-          <version>2.1.0.Final</version>
-          <scope>test</scope>
-        </dependency>
-      </dependencies>
     </profile>
     <profile>
       <id>arq-managed</id>
@@ -318,10 +311,12 @@
   <repositories>
     <repository>
       <id>jboss-public-repository</id>
+      <name>JBoss Public</name>
       <url>http://repository.jboss.org/nexus/content/groups/public/</url>
     </repository>
     <repository>
-      <id>Red Hat GA</id>
+      <id>red-hat-ga</id>
+      <name>Red Hat GA</name>
       <url>https://maven.repository.redhat.com/ga/</url>
     </repository>
   </repositories>
