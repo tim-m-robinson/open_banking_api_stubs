@@ -31,7 +31,7 @@ node {
         }
 
         stage('Test') {
-          sh 'mvn -q -DJBOSS_HOME=/var/jenkins_home/jboss-fuse-eap/eap test -Parq-managed'
+          sh 'mvn -B -DJBOSS_HOME=/var/jenkins_home/jboss-fuse-eap/eap test -Parq-managed'
         }
 
         stage('Dependency Check') {
