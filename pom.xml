@@ -209,6 +209,9 @@
               <goals>
                 <goal>prepare-agent-integration</goal>
               </goals>
+              <configuration>
+                <destFile>${project.build.directory}/jacoco-it.exec</destFile>
+              </configuration>
             </execution>
             <execution>
               <id>jacoco-site</id>
