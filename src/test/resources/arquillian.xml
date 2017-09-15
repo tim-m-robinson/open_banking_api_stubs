@@ -17,6 +17,7 @@
         <configuration>
             <property name="jbossHome">${jboss.home}</property>
             <property name="includes">.net.atos.openbanking.api.*</property>
+            <property name="javaVmArguments">${jacoco.agent}</property>
         </configuration>
     </container>
 

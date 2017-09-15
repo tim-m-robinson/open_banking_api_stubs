@@ -2,6 +2,7 @@ package net.atos.openbanking.api;
 
 import org.apache.commons.io.IOUtils;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
 import javax.ws.rs.ApplicationPath;
@@ -12,7 +13,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 
-
+@ApplicationScoped
 @ApplicationPath("/")
 public class ServicesImpl extends Application implements Services {
 

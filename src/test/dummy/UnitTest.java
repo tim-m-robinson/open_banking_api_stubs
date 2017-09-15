@@ -2,6 +2,15 @@ package net.atos.openbanking.api;
 
 import org.apache.http.HttpStatus;
 
+import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.container.test.api.RunAsClient;
+import org.jboss.arquillian.core.api.annotation.Inject;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.test.api.ArquillianResource;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.asset.EmptyAsset;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,12 +20,59 @@ import org.jboss.resteasy.mock.MockHttpRequest;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import java.io.File;
+import java.net.URL;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.is;
 
 
-@RunWith(JUnit4.class)
+@RunWith(Arquillian.class)
 public class UnitTest {
 
-  ServicesImpl test = new ServicesImpl();
+  @Deployment
+  public static WebArchive createDeployment() {
+    // Gather runtime dependencies from POM
+    File[] files = Maven.resolver().loadPomFromFile("pom.xml")
+            .importRuntimeDependencies().resolve().withTransitivity().asFile();
+
+    WebArchive war = ShrinkWrap.create(WebArchive.class, "open-banking-api-test.war")
+            .addClasses(Services.class, ServicesImpl.class)
+            .addAsLibraries(files)
+            .addAsResource("data/getAccounts.json")
+            .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
+    System.out.println(war.toString(true));
+    return war;
+  }
+
+  @Inject
+  private ServicesImpl test1;
+
+  //ServicesImpl test = new ServicesImpl();
+
+  @Test
+  public void tmp() {
+    if (test1 != null) {
+      System.out.println("*** " + test1.toString());
+    } else {
+      System.out.println("*** NULL");
+    }
+  }
+
+  @ArquillianResource
+  URL url;
+
+  @Test
+  @RunAsClient()
+  public void do_stuff() {
+    given().
+    when().
+      get(url + "open-banking/accounts").
+    then().
+      assertThat().statusCode(HttpStatus.SC_BAD_REQUEST);
+  }
+
+/*
 
   @Test
   public void get_acc_should_return_bad_request() throws Exception {
@@ -388,5 +444,5 @@ public class UnitTest {
     //Then
     Assert.assertEquals(HttpStatus.SC_OK, response.getStatus());
   }
-
+*/
 }

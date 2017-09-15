@@ -22,6 +22,8 @@
     <version.docker.maven.plugin>0.21.0</version.docker.maven.plugin>
     <version.jacoco>0.7.8</version.jacoco>
     <version.arquillian.jacoco>1.0.0.Alpha9</version.arquillian.jacoco>
+
+    <argLine></argLine>
   </properties>
 
   <dependencyManagement>
@@ -121,16 +123,10 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>2.7.22</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-jaxrs</artifactId>
       <version>2.3.10.Final-redhat-1</version>
-      <scope>compile</scope>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 
@@ -161,7 +157,6 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.20</version>
         <configuration>
-          <argLine>${jacoco.agent.argLine}</argLine>
           <skipTests>false</skipTests>
           <includes>
             <include>**/IT**.class</include>
@@ -170,6 +165,7 @@
           <systemPropertyVariables>
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
             <jboss.home>${JBOSS_HOME}</jboss.home>
+            <jacoco.agent>${jacoco.agent.vmargs}</jacoco.agent>
           </systemPropertyVariables>
         </configuration>
       </plugin>
@@ -213,7 +209,6 @@
           <version>${version.jacoco}</version>
           <configuration>
             <append>true</append>
-            <propertyName>jacoco.agent.argLine</propertyName>
           </configuration>
           <executions>
             <execution>
@@ -221,6 +216,9 @@
               <goals>
                 <goal>prepare-agent</goal>
               </goals>
+              <configuration>
+                <propertyName>jacoco.agent.vmargs</propertyName>
+              </configuration>
             </execution>
             <execution>
               <id>jacoco-site</id>
@@ -229,7 +227,6 @@
                 <goal>report</goal>
               </goals>
             </execution>
-
           </executions>
         </plugin>
 

@@ -29,6 +29,7 @@ import static org.hamcrest.Matchers.notNullValue;
 public class SingleAccountTest {
 
     private final String endPoint = "open-banking/accounts/22289";
+    private final String invalidEndPoint = "open-banking/accounts/12345";
     private final String valid_bearer_token = "cMotDibBl3r";
 
     @Deployment
@@ -134,6 +135,23 @@ public class SingleAccountTest {
     @Test
     @RunAsClient
     @InSequence(8)
+    public void should_return_forbidden_invalid_account_for_bearer_token() {
+        given().
+          header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON).
+          header(HttpHeaders.AUTHORIZATION, "Bearer " + valid_bearer_token).
+          header("x-fapi-financial-id", "OB/1234/ABC").
+          header("x-fapi-interaction-id", "9876-ABCD-1234-ZYXW").
+        expect().
+          statusCode(HttpStatus.SC_FORBIDDEN).
+          header("x-fapi-interaction-id", "9876-ABCD-1234-ZYXW").
+          that().header("x-jws-signature", notNullValue()).
+        when().
+          get(deploymentUrl + invalidEndPoint);
+    }
+
+    @Test
+    @RunAsClient
+    @InSequence(9)
     public void should_return_data() {
         given().
           header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON).
