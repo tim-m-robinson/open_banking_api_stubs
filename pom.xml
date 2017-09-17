@@ -20,10 +20,8 @@
     <version.apache.commons>2.5</version.apache.commons>
     <version.restassured>3.0.3</version.restassured>
     <version.docker.maven.plugin>0.21.0</version.docker.maven.plugin>
-    <version.jacoco>0.7.8</version.jacoco>
+    <version.jacoco>0.7.4.201502262128</version.jacoco>
     <version.arquillian.jacoco>1.0.0.Alpha9</version.arquillian.jacoco>
-
-    <argLine></argLine>
   </properties>
 
   <dependencyManagement>
@@ -53,9 +51,9 @@
       <version>1.0.4</version>
     </dependency>
     <dependency>
-      <groupId>org.jboss.spec.javax.ws.rs</groupId>
-      <artifactId>jboss-jaxrs-api_1.1_spec</artifactId>
-      <version>1.0.1.Final</version>
+      <groupId>javax.ws.rs</groupId>
+      <artifactId>javax.ws.rs-api</artifactId>
+      <version>2.0.1</version>
     </dependency>
     <!-- Apache Commons -->
     <dependency>
@@ -64,23 +62,6 @@
       <version>${version.apache.commons}</version>
     </dependency>
     <!-- logging -->
-    <!--
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    -->
 
     <!-- testing -->
     <dependency>
@@ -122,12 +103,6 @@
       <version>${version.jacoco}</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-jaxrs</artifactId>
-      <version>2.3.10.Final-redhat-1</version>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
 
   <build>
@@ -157,13 +132,16 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.20</version>
         <configuration>
-          <skipTests>false</skipTests>
           <includes>
             <include>**/IT**.class</include>
             <include>**/*Test.class</include>
           </includes>
           <systemPropertyVariables>
+            <!--  Force Jersey to be used when RestEasy is auto-discovered. Jersey is required by docker-java -->
+            <javax.ws.rs.ext.RuntimeDelegate>org.glassfish.jersey.internal.RuntimeDelegateImpl</javax.ws.rs.ext.RuntimeDelegate>
+            <!--
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+            -->
             <jboss.home>${JBOSS_HOME}</jboss.home>
             <jacoco.agent>${jacoco.agent.vmargs}</jacoco.agent>
           </systemPropertyVariables>
@@ -201,35 +179,61 @@
           </images>
         </configuration>
       </plugin>
-
-
-        <plugin>
-          <groupId>org.jacoco</groupId>
-          <artifactId>jacoco-maven-plugin</artifactId>
-          <version>${version.jacoco}</version>
-          <configuration>
-            <append>true</append>
-          </configuration>
-          <executions>
-            <execution>
-              <id>agent-for-ut</id>
-              <goals>
-                <goal>prepare-agent</goal>
-              </goals>
-              <configuration>
-                <propertyName>jacoco.agent.vmargs</propertyName>
-              </configuration>
-            </execution>
-            <execution>
-              <id>jacoco-site</id>
-              <phase>test</phase>
-              <goals>
-                <goal>report</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-
+      <!-- -->
+      <plugin>
+        <groupId>org.helmetsrequired</groupId>
+        <artifactId>jacocotogo-maven-plugin</artifactId>
+        <version>1.1</version>
+        <executions>
+          <execution>
+            <id>get_docker_test_coverage</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>tcp</goal>
+            </goals>
+            <configuration>
+              <failOnError>true</failOnError>
+              <hostname>10.0.2.15</hostname>
+              <port>6300</port>
+              <outputFile>${project.basedir}/target/jacoco.exec</outputFile>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${version.jacoco}</version>
+        <configuration>
+          <!--
+          <append>true</append>
+          -->
+          <output>tcpserver</output>
+          <address>10.0.2.15</address>
+          <port>6300</port>
+        </configuration>
+        <executions>
+          <execution>
+            <id>agent-for-ut</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+            <configuration>
+              <propertyName>jacoco.agent.vmargs</propertyName>
+            </configuration>
+          </execution>
+          <execution>
+            <id>jacoco-site</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>dump</goal>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
@@ -268,19 +272,6 @@
           <scope>test</scope>
         </dependency>
       </dependencies>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <systemPropertyVariables>
-                <arquillian.launch>wildfly-managed</arquillian.launch>
-              </systemPropertyVariables>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
     </profile>
     <profile>
       <id>arq-remote</id>
@@ -302,6 +293,36 @@
     </profile>
     <profile>
       <id>arq-cube</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.arquillian.universe</groupId>
+          <artifactId>arquillian-cube-docker</artifactId>
+          <version>${version.arquillian.universe}</version>
+          <type>pom</type>
+          <scope>test</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.jboss.as</groupId>
+          <artifactId>jboss-as-arquillian-container-remote</artifactId>
+          <version>7.1.1.Final</version>
+          <scope>test</scope>
+        </dependency>
+        <!--
+        <dependency>
+          <groupId>org.apache.cxf</groupId>
+          <artifactId>cxf-bundle-jaxrs</artifactId>
+          <scope>test</scope>
+          <version>2.7.18</version>
+        </dependency>
+       -->
+        <!--
+        <dependency>
+          <groupId>org.jboss.arquillian.junit</groupId>
+          <artifactId>arquillian-junit-standalone</artifactId>
+          <scope>test</scope>
+        </dependency>
+        -->
+      </dependencies>
     </profile>
   </profiles>
 

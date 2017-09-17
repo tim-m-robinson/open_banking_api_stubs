@@ -11,12 +11,13 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import org.jboss.resteasy.mock.MockHttpRequest;
+//import org.apache.cxf.jaxrs.impl.HttpHeadersImpl;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;

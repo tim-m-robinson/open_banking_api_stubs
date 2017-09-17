@@ -1,9 +1,12 @@
 package net.atos.openbanking.api;
 
 import org.apache.http.HttpStatus;
+import org.arquillian.cube.CubeIp;
+import org.arquillian.cube.DockerUrl;
 import org.hamcrest.core.IsNull;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
+import org.jboss.arquillian.extension.jacoco.container.ShutdownCoverageData;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -11,10 +14,13 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.inject.Inject;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import java.io.File;
@@ -47,22 +53,30 @@ public class SingleAccountTest {
         return war;
     }
 
+    //@DockerUrl(containerName = "test", exposedPort = 8080)
     @ArquillianResource
     URL deploymentUrl;
+
+    @CubeIp(containerName = "test")
+    String cubeIp;
 
     // BASIC TESTS
 
     @Test
+    @RunAsClient
     @InSequence(1)
     public void should_check_test_framework() {
         Assert.assertTrue(true);
     }
 
     @Test
+    @RunAsClient
     @InSequence(2)
     public void should_have_url() {
+        System.out.println("URL: "+deploymentUrl);
+        //System.out.println("IP: "+cubeIp);
         Assert.assertNotNull(deploymentUrl);
-        System.out.println(deploymentUrl);
+        //Assert.assertNotNull(cubeIp);
     }
 
     // API TESTS
@@ -75,9 +89,12 @@ public class SingleAccountTest {
         expect().
           statusCode(HttpStatus.SC_BAD_REQUEST).
         when().
+          //get("http://"+cubeIp+":8080/open-banking-api-test/" + endPoint);
           get(deploymentUrl + endPoint);
+
     }
 
+/*
     @Test
     @RunAsClient
     @InSequence(4)
@@ -166,5 +183,5 @@ public class SingleAccountTest {
         when().
           get(deploymentUrl + endPoint);
     }
-
+*/
 }
