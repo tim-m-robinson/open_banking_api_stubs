@@ -35,7 +35,7 @@
       <property name="definitionFormat">CUBE</property>
       <property name="dockerContainers">
         test:
-          image: fuse_eap_admin:6.3.0
+          image: open-banking-api-stubs:1.0.0 #fuse_eap:6.3.0
           await:
             strategy: sleeping
             sleepTime: 60 s

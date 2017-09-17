@@ -3,6 +3,7 @@ package net.atos.openbanking.api;
 import org.apache.http.HttpStatus;
 import org.arquillian.cube.CubeIp;
 import org.arquillian.cube.DockerUrl;
+import org.arquillian.cube.HostIp;
 import org.hamcrest.core.IsNull;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
@@ -37,7 +38,7 @@ public class SingleAccountTest {
     private final String endPoint = "open-banking/accounts/22289";
     private final String invalidEndPoint = "open-banking/accounts/12345";
     private final String valid_bearer_token = "cMotDibBl3r";
-
+/*
     @Deployment
     public static WebArchive createDeployment() {
         // Gather runtime dependencies from POM
@@ -52,13 +53,17 @@ public class SingleAccountTest {
         System.out.println(war.toString(true));
         return war;
     }
+*/
 
     //@DockerUrl(containerName = "test", exposedPort = 8080)
-    @ArquillianResource
-    URL deploymentUrl;
+    //@ArquillianResource
+    //URL deploymentUrl;
 
-    @CubeIp(containerName = "test")
-    String cubeIp;
+    //@CubeIp(containerName = "test")
+    //String cubeIp;
+
+    @HostIp
+    private String cubeIp;
 
     // BASIC TESTS
 
@@ -72,11 +77,11 @@ public class SingleAccountTest {
     @Test
     @RunAsClient
     @InSequence(2)
-    public void should_have_url() {
-        System.out.println("URL: "+deploymentUrl);
-        //System.out.println("IP: "+cubeIp);
-        Assert.assertNotNull(deploymentUrl);
-        //Assert.assertNotNull(cubeIp);
+    public void should_have_url() throws Exception {
+        //System.out.println("URL: "+deploymentUrl);
+        System.out.println("IP: "+cubeIp);
+        //Assert.assertNotNull(deploymentUrl);
+        Assert.assertNotNull(cubeIp);
     }
 
     // API TESTS
@@ -89,8 +94,8 @@ public class SingleAccountTest {
         expect().
           statusCode(HttpStatus.SC_BAD_REQUEST).
         when().
-          //get("http://"+cubeIp+":8080/open-banking-api-test/" + endPoint);
-          get(deploymentUrl + endPoint);
+          get("http://"+cubeIp+":8080/open-banking-api-stubs/" + endPoint);
+          //get(deploymentUrl + endPoint);
 
     }
 

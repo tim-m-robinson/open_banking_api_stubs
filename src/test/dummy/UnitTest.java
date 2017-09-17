@@ -30,7 +30,7 @@ import static org.hamcrest.CoreMatchers.is;
 
 @RunWith(Arquillian.class)
 public class UnitTest {
-
+/*
   @Deployment
   public static WebArchive createDeployment() {
     // Gather runtime dependencies from POM
@@ -45,7 +45,7 @@ public class UnitTest {
     System.out.println(war.toString(true));
     return war;
   }
-
+*/
   @Inject
   private ServicesImpl test1;
 

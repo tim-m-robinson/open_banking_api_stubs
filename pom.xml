@@ -70,9 +70,16 @@
       <version>${version.junit}</version>
       <scope>test</scope>
     </dependency>
+    <!--
     <dependency>
       <groupId>org.jboss.arquillian.junit</groupId>
       <artifactId>arquillian-junit-container</artifactId>
+      <scope>test</scope>
+    </dependency>
+    -->
+    <dependency>
+      <groupId>org.jboss.arquillian.junit</groupId>
+      <artifactId>arquillian-junit-standalone</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -195,7 +202,7 @@
               <failOnError>true</failOnError>
               <hostname>10.0.2.15</hostname>
               <port>6300</port>
-              <outputFile>${project.basedir}/target/jacoco.exec</outputFile>
+              <outputFile>${project.basedir}/target/jacoco-tcp.exec</outputFile>
             </configuration>
           </execution>
         </executions>
@@ -206,9 +213,7 @@
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>${version.jacoco}</version>
         <configuration>
-          <!--
           <append>true</append>
-          -->
           <output>tcpserver</output>
           <address>10.0.2.15</address>
           <port>6300</port>
@@ -228,9 +233,11 @@
             <id>jacoco-site</id>
             <phase>prepare-package</phase>
             <goals>
-              <goal>dump</goal>
               <goal>report</goal>
             </goals>
+            <configuration>
+              <dataFile>${project.build.directory}/jacoco-tcp.exec</dataFile>
+            </configuration>
           </execution>
         </executions>
       </plugin>
